@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style media="screen">
+      table,tr,td,th{border: 1px solid black;}
+    </style>
+  </head>
+  <body>
+
+    <table>
+      <tr id = "date">
+
+      </tr>
+      <tr id = "weather">
+
+      </tr>
+    </table>
+
+    <script type="text/javascript">
+
+      //通信処理を行うXHRオブジェクトファイルを生成
+      var xhr = new XMLHttpRequest();
+      //通信先を開く
+      xhr.open('GET', "https://api.open-meteo.com/v1/forecast?latitude=35.6785&longitude=139.6823&daily=weathercode&timezone=Asia%2FTokyo");
+      //送信処理
+      xhr.send();
+      //返信があった場合
+      xhr.onreadystatechange = function() {
+        if(xhr.readyState === 4 && xhr.status === 200) {
+          let date_array = JSON.parse(xhr.responseText)["daily"]["time"];
+          let weather_array = JSON.parse(xhr.responseText)["daily"]["weathercode"];
+
+          weather_array = weather_array.map(code => wcodeToStr(code));
+
+          createWeatherTable(date_array,weather_array);
+        }
+      }
+
+    /*date_array = ["2022-6-16",
+      "2022-06-17",
+      "2022-06-18",
+      "2022-06-19",
+      "2022-06-20",
+      "2022-06-21",
+      "2022-06-22"];
+
+    weather_array = ["晴","晴","晴","晴","晴","晴","晴"];*/
+
+    function wcodeToStr(code) {
+        let w_code_list = {0:"快晴",//
+                           1:"晴れ",//
+                           2:"晴れ",//
+                           3:"晴れ",//
+                           45:"曇り",//
+                           48:"曇り",//
+                           51:"不明",
+                           53:"不明",
+                           55:"不明",
+                           56:"不明",
+                           57:"不明",
+                           61:"雨",//
+                           63:"雨",//
+                           65:"雨",//
+                           66:"不明",
+                           67:"不明",
+                           71:"不明",
+                           73:"不明",
+                           75:"不明",
+                           77:"不明",
+                           80:"豪雨",//
+                           81:"豪雨",//
+                           82:"豪雨",//
+                           85:"不明",
+                           86:"不明",
+                           95:"雷雨",//
+                           96:"不明",
+                           99:"不明"}
+        return w_code_list[parseInt(code)]
+    }
+
+    function createWeatherTable(date_array,weather_array) {
+      let tr_date = document.getElementById('date');
+      let tr_weather = document.getElementById('weather');
+
+      date_array.forEach(function(date,i) {
+        tr_date.innerHTML = tr_date.innerHTML + "<th>" + date + "</th>";
+        tr_weather.innerHTML = tr_weather.innerHTML + "<th>" + weather_array[i] + "</th>";
+      });
+    }
+
+    </script>
+  </body>
+</html>
