@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <style media="screen">
+    body{margin:0;}
+.container{
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+#timeline{width:600px;
+  border-width: 0px thin;
+  border-style: solid;
+  border-color: #CCC;
+}
+.tweet{display:flex;
+  border-width: 0px 0px 1px 0px;
+  border-style: solid;
+  border-color: #CCC;
+  padding:15px;
+}
+.icon{width:70px;}
+.icon img{width:50px;border-radius: 50%; }
+.tweet_box{ flex: 1; }
+.username{font-weight: bold;}
+.name{padding-left:5px;
+  font-weight: lighter;
+  color:gray;}
+.date{padding-left:0px;
+  padding-right:0px;
+  font-weight: lighter;
+  color:gray;}
+.date::before {
+  content: "- ";}
+.time{padding-left:0px;
+  font-weight: lighter;
+  color:gray;
+}
+.text{padding-top:3px;
+  /*padding-bottom:5px;font-family: 'ＭＳ Ｐゴシック','ＭＳＰゴシック','MSPゴシック','MS Pゴシック';*/
+  font-size: 16px;
+  line-height: 18px;
+  word-break: break-all;
+}
+.action{display:flex;}
+.action span{width:25%;}
+.icon_chat{
+  padding-left:35px;
+  background-image: url(./img/chat.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.icon_fav{
+  padding-left:35px;
+  background-image: url(./img/fav.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.icon_res{
+  padding-left:35px;
+  background-image: url(./img/res.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.icon_share{
+  padding-left:35px;
+  background-image: url(./img/share.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+    </style>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <div class="container">
+      <div id="timeline">
+        <div class="tweet">
+
+          <input type="text" id="input_text" placeholder="ここに入力してね">
+          <button onclick="form_tweet()" name="submit">送信</button>
+
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+      let timeline = document.getElementById('timeline')
+
+      //フォームの内容をpost_tweet関数に渡す処理
+      function form_tweet() {
+        let input_text = document.getElementById('input_text');
+        if (input_text.value != "") {
+          post_tweet(input_text.value,"utogeshi","ryoma");
+          input_text.value = "";
+        }
+      }
+
+      //書き込み処理
+      async function post_tweet(text,name,username) {
+        let send_data = "?name=" + name + "&username=" + username + "&text=" + text
+        let res_data = await (await fetch("http://192.168.0.90/tweet.rb" + send_data)).text();
+        if (res_data != "OK") {
+          alert(res_data);
+        }
+      };
+
+      updateTweet();
+
+      async function updateTweet() {
+
+        let array = await (await fetch("http://192.168.0.90/timeline.json")).json();
+
+        array.forEach((tweet) => {
+          let template = `<div class="tweet">
+            <div class="icon">
+              <img src="AncientRoman_Man.jpg" alt="">
+            </div>
+            <div class="tweet_box">
+              <div class="username">
+                ${tweet.username}
+                <span class="name">@${tweet.username}</span>
+                <span class="date">${tweet.date}</span>
+                <span class="time">${tweet.time}</span>
+              </div>
+              <div class="text">
+                ${tweet.text}
+              </div>
+              <div class="action">
+                <span class="icon_chat">${tweet.chat_count}</span>
+                <span class="icon_fav">${tweet.fav_count}</span>
+                <span class="icon_res">${tweet.res_count}</span>
+                <span class="icon_share"></span>
+              </div>
+            </div>
+          </div>`
+          timeline.innerHTML = timeline.innerHTML + template
+        });
+      }
+
+    </script>
+  </body>
+</html>
